@@ -28,6 +28,6 @@ int main() {
         cout << 0 << endl;
         return 0;
     }
-    cout << f(s, data, 0, 0, 0, n) << endl;
+    cout << f(s / 2, data, 0, 0, 0, n) << endl;
     return 0;
 }
