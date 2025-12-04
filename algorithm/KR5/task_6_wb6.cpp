@@ -20,9 +20,11 @@ char hashFunc(char data[], int n) {
 int main() {
     int n;
     cin >> n;
+    string inputString;
+    cin >> inputString;
     char data[n];
     for (int i = 0; i < n; i++) {
-        cin >> data[i];
+        data[i] = (char)inputString[i];
     }
     cout << hashFunc(data, n) << endl;
     return 0;
