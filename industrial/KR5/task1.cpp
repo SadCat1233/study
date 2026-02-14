@@ -14,7 +14,6 @@ int popElement(vector<int>& priorityQueue) {
 void pushElement(vector<int>& priorityQueue, int value, string direction) {
     if (direction == "increase") {
         auto it = lower_bound(priorityQueue.begin(), priorityQueue.end(), value);
-        priorityQueue.insert(it, value);
     }
     else {
         auto it = lower_bound(priorityQueue.begin(), priorityQueue.end(), value, greater<int>());
