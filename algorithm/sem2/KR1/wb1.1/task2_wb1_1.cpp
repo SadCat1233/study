@@ -4,7 +4,7 @@
 
 using namespace std;
 
-const int MAX_SUM = 1000000;
+const long long unsigned int MAX_SUM = 18446744073709551615;
 
 
 bool half(const vector<int>& arr, int valuesSum) {
