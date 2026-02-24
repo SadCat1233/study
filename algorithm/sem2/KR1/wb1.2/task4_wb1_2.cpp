@@ -77,25 +77,19 @@ void eraseNode(Node*& head, Node*& last, int n) {
     }
 }
 
+bool isPalindrome(Node* head, Node* tail) {
+    if (!head) return true;          
+    if (head == tail) return true;   
 
-bool is_palindrome(Node* head, Node* last) {
-    if (head == nullptr) return false;
-    if (head->next == nullptr) return true;
-    stack<int> st;
-    for (Node* cur = head; cur != nullptr; cur = cur->next) {
-        if (st.empty()) {
-            st.push(cur->value);
-        } else {
-            if (cur->value == st.top()) {
-                st.pop();
-            }
-            else {
-                st.push(cur->value);
-            }
-        }
+    Node* l = head;
+    Node* r = tail;
+
+    while (l != r && l->prev != r) { 
+        if (l->value != r->value) return false;
+        l = l->next;
+        r = r->prev;
     }
-    if (st.empty()) return true;
-    else return false;
+    return true;
 }
 
 
@@ -131,13 +125,13 @@ int main() {
     addNodeEnd(head, last, 5);
     addNodeEnd(head, last, 7);
     addNodeEnd(head, last, 9);
-    // insertNode(head, last, 5, 4);
+    insertNode(head, last, 5, 4);
     addNodeEnd(head, last, 9);
     addNodeEnd(head, last, 7);
     addNodeEnd(head, last, 5);
     addNodeEnd(head, last, 3);
-    // eraseNode(head, last, 5);
-    cout << is_palindrome(head, last) << endl;
+    eraseNode(head, last, 5);
+    cout << isPalindrome(head, last) << endl;
     printList(head, last, false);
     cout << listLength(head, last) << endl;
     return 0;
