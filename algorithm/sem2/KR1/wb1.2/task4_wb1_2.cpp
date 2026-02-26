@@ -66,6 +66,9 @@ void eraseNode(Node*& head, Node*& last, int n) {
             Node* right = cur->next;
             if (head == cur) {
                 head = right;
+            } else if (last == cur) {
+                last = cur->prev;
+                last->next = nullptr;
             } else {
                 Node* left = cur->prev;
                 left->next = right;
@@ -130,7 +133,7 @@ int main() {
     addNodeEnd(head, last, 7);
     addNodeEnd(head, last, 5);
     addNodeEnd(head, last, 3);
-    eraseNode(head, last, 5);
+    eraseNode(head, last, 3);
     cout << isPalindrome(head, last) << endl;
     printList(head, last, false);
     cout << listLength(head, last) << endl;
