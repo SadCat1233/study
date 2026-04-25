@@ -174,6 +174,14 @@ void eraseNode(Node*& root, int value) {
 }
 
 
+void deleteTree(Node*& root) {
+    if (!root) return;
+    deleteTree(root->left);
+    deleteTree(root->right);
+    delete root;
+}
+
+
 int main() {
     return 0;
 }
