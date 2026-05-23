@@ -1,100 +1,88 @@
 #include <iostream>
-#include <memory>
 #include <string>
-#include <unordered_map>
-#include <vector>
-
+#include <utility>
 using namespace std;
 
-struct TrieNode {
-    bool isWord = false;
-    unordered_map<char, unique_ptr<TrieNode>> next;
+
+struct TrieNode
+{
+    TrieNode* children[26]; 
+    bool isEndOfWord;
+
+    TrieNode() {
+        isEndOfWord = false;
+        for (int i = 0; i < 26; ++i) {
+            children[i] = nullptr;
+        }
+    }
 };
 
-class Trie {
-private:
-    TrieNode root;
 
-    bool erase(TrieNode* node, const string& word, int index) {
-        if (index == static_cast<int>(word.size())) {
-            if (!node->isWord) {
-                return false;
-            }
+int charToIndex(char ch) {
+    return ch - 'a';
+}
 
-            node->isWord = false;
-            return node->next.empty();
+bool eraseWord(TrieNode* root, const string& word) { // приведенная функиция НЕ будет удалять узлы если это возможно (отуствие детей и не конец другого слова), тк в задание не уточняется это
+    TrieNode* cur = root;
+
+    for (char c : word) {
+        if (c < 'a' || c > 'z') return false;
+
+        int idx = charToIndex(c);
+        if (!cur->children[idx]) return false;
+        
+        cur = cur->children[idx];
+    }
+    if (!cur->isEndOfWord) return false;       
+    cur->isEndOfWord = false;
+    return true;
+}
+
+void insert(TrieNode* root, const string& word) {
+    TrieNode* current = root;
+    
+    for (char ch : word) {
+        int index = charToIndex(ch);
+        
+        if (current->children[index] == nullptr) {
+            current->children[index] = new TrieNode();
         }
 
-        char symbol = word[index];
-        auto child = node->next.find(symbol);
+        current = current->children[index];
+    }
+    current->isEndOfWord = true;
+}
 
-        if (child == node->next.end()) {
+bool search(TrieNode* root, const string& word) {
+    TrieNode* current = root;
+    
+    for (char ch : word) {
+        int index = charToIndex(ch);
+        
+        if (current->children[index] == nullptr) {
             return false;
         }
-
-        bool shouldDeleteChild = erase(child->second.get(), word, index + 1);
-
-        if (shouldDeleteChild) {
-            node->next.erase(symbol);
-        }
-
-        return !node->isWord && node->next.empty();
+        current = current->children[index];
     }
 
-public:
-    void insert(const string& word) {
-        TrieNode* current = &root;
+    return (current != nullptr && current->isEndOfWord);
+}
 
-        for (char symbol : word) {
-            if (!current->next.count(symbol)) {
-                current->next[symbol] = make_unique<TrieNode>();
-            }
+int main(){
 
-            current = current->next[symbol].get();
-        }
+    string word = "hello";
 
-        current->isWord = true;
-    }
+    TrieNode* root = new TrieNode();
 
-    bool search(const string& word) const {
-        const TrieNode* current = &root;
+    insert(root, "hello");
+    insert(root, "privet");
+    insert(root, "car");
+    insert(root, "podushka");
 
-        for (char symbol : word) {
-            auto child = current->next.find(symbol);
+    cout << search(root, word) << endl; // 1 - слово найдено
+    eraseWord(root, word); // удаляем логически слово
+    cout << search(root, word) << endl; // 0 - слово не найдено
 
-            if (child == current->next.end()) {
-                return false;
-            }
-
-            current = child->second.get();
-        }
-
-        return current->isWord;
-    }
-
-    void erase(const string& word) {
-        erase(&root, word, 0);
-    }
-};
-
-int main() {
-    int n;
-    cin >> n;
-
-    Trie trie;
-
-    for (int i = 0; i < n; i++) {
-        string word;
-        cin >> word;
-        trie.insert(word);
-    }
-
-    string wordToDelete;
-    cin >> wordToDelete;
-
-    trie.erase(wordToDelete);
-
-    cout << (trie.search(wordToDelete) ? "YES" : "NO") << endl;
 
     return 0;
 }

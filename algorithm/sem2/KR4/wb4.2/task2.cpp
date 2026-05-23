@@ -1,145 +1,83 @@
-#include <algorithm>
 #include <iostream>
 #include <string>
-#include <unordered_map>
 #include <vector>
-
+#include <utility>
 using namespace std;
 
-struct TrieNode {
-    bool isEnd = false;
-    unordered_map<char, int> next;
+
+struct TrieNode
+{
+    TrieNode* children[26]; 
+    bool isEndOfWord;
+
+    TrieNode() {
+        isEndOfWord = false;
+        for (int i = 0; i < 26; ++i) {
+            children[i] = nullptr;
+        }
+    }
 };
 
-vector<TrieNode> trie(1);
 
-bool isNumber(const string& value) {
-    if (value.empty()) {
-        return false;
-    }
-
-    for (char symbol : value) {
-        if (symbol < '0' || symbol > '9') {
-            return false;
-        }
-    }
-
-    return true;
+int charToIndex(char ch) {
+    return ch - 'a';
 }
 
-void insertWord(const string& word) {
-    int current = 0;
 
-    for (char symbol : word) {
-        if (!trie[current].next.count(symbol)) {
-            trie[current].next[symbol] = trie.size();
-            trie.push_back(TrieNode());
+void insert(TrieNode* root, const string& word) {
+    TrieNode* current = root;
+    
+    for (char ch : word) {
+        int index = charToIndex(ch);
+        
+        if (current->children[index] == nullptr) {
+            current->children[index] = new TrieNode();
         }
 
-        current = trie[current].next[symbol];
+        current = current->children[index];
     }
-
-    trie[current].isEnd = true;
+    current->isEndOfWord = true;
 }
 
-vector<string> getPrefixes(const string& word) {
-    vector<string> prefixes;
-    int current = 0;
-    string prefix;
-
-    for (int i = 0; i + 1 < static_cast<int>(word.size()); i++) {
-        char symbol = word[i];
-
-        if (!trie[current].next.count(symbol)) {
-            break;
-        }
-
-        current = trie[current].next[symbol];
-        prefix += symbol;
-
-        if (trie[current].isEnd) {
-            prefixes.push_back(prefix);
-        }
-    }
-
-    return prefixes;
-}
-
-int countExistingPrefixes(const string& word) {
+int countPath(TrieNode* root, const string& word){
     int count = 0;
-    int current = 0;
 
-    for (int i = 0; i + 1 < static_cast<int>(word.size()); i++) {
-        char symbol = word[i];
-
-        if (!trie[current].next.count(symbol)) {
-            break;
-        }
-
-        current = trie[current].next[symbol];
-
-        if (trie[current].isEnd) {
-            count++;
-        }
+    for (char c : word){
+        int idx = charToIndex(c);
+        root = root->children[idx];
+        if (root->isEndOfWord) count++;
     }
 
     return count;
 }
 
-int main() {
-    vector<string> input;
-    string token;
 
-    while (cin >> token) {
-        input.push_back(token);
+int main(){
+
+    vector<string> inputWord = {"a", "ab", "abc", "abcd", "abcdef", "bcd"};
+
+    TrieNode* root = new TrieNode();
+
+    for (auto word : inputWord){
+        insert(root, word);
     }
 
-    if (input.empty()) {
-        return 0;
-    }
+    int maxCount = -1;
 
-    vector<string> words;
-
-    if (isNumber(input[0]) && input.size() > 1) {
-        int n = stoi(input[0]);
-
-        for (int i = 1; i <= n && i < static_cast<int>(input.size()); i++) {
-            words.push_back(input[i]);
-        }
-    } else {
-        words = input;
-    }
-
-    for (const string& word : words) {
-        insertWord(word);
-    }
-
-    string bestWord;
-    int bestCount = -1;
-
-    for (const string& word : words) {
-        int currentCount = countExistingPrefixes(word);
-
-        if (currentCount > bestCount ||
-            (currentCount == bestCount && word.size() > bestWord.size())) {
-            bestCount = currentCount;
-            bestWord = word;
+    for (auto word : inputWord){
+        int cnt = countPath(root, word) - 1; // само слово не учитываем
+        if (cnt > maxCount){
+            maxCount = cnt;
         }
     }
 
-    cout << bestWord << " (Префиксы: ";
-
-    vector<string> prefixes = getPrefixes(bestWord);
-
-    for (int i = 0; i < static_cast<int>(prefixes.size()); i++) {
-        if (i > 0) {
-            cout << ", ";
+    for (auto word : inputWord){
+        int cnt = countPath(root, word) - 1; // само слово не учитываем
+        if (cnt == maxCount){
+            cout << word;
         }
-
-        cout << prefixes[i];
     }
 
-    cout << ")" << endl;
 
     return 0;
 }
